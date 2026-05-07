@@ -47,42 +47,6 @@ pipeline {
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
-        stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER \
-                            --password-stdin
-                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} \
-                            ${DOCKER_IMAGE}:latest
-                        docker push ${DOCKER_IMAGE}:latest
-                    '''
-                }
-            }
-        }
-        stage('Deploy to Kubernetes') {
-            when { branch 'main' }
-            steps {
-                withCredentials([file(
-                    credentialsId: 'kubeconfig',
-                    variable: 'KUBECONFIG'
-                )]) {
-                    sh '''
-                        sed -i 's|IMAGE_TAG|'${DOCKER_TAG}'|g' \
-                            k8s/deployment.yaml
-                        kubectl apply -f k8s/ --kubeconfig=$KUBECONFIG
-                        kubectl rollout status deployment/${APP_NAME} \
-                            -n ${NAMESPACE} --kubeconfig=$KUBECONFIG
-                    '''
-                }
-            }
-        }
-    }
     post {
         success {
             echo "Deployed ${DOCKER_IMAGE}:${DOCKER_TAG} successfully!"
