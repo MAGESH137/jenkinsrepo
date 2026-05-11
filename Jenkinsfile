@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         APP_NAME     = 'spring-boot-cicd'
-        DOCKER_IMAGE = "myusername/${APP_NAME}"
+        DOCKER_IMAGE = "udhayakumarsankar/${APP_NAME}"
         DOCKER_TAG   = "${BUILD_NUMBER}"
         NAMESPACE    = 'production'
     }
