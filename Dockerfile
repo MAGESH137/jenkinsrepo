@@ -5,7 +5,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Run stage for loop testing
+# Run stage for loop testing highdemand
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
